@@ -1,3 +1,4 @@
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -5,22 +6,12 @@ public class ShoppingCart {
     private double currentCost;
     private int currentAmountInCart;
     private double cartTotalCost;
-    //todo:check if protected problematic
     protected List<Product> productsInCart;
 
     //Constructors
     public ShoppingCart() {
         this.productsInCart = new LinkedList<>();
     }
-
-//    public ShoppingCart(List<Product> productsInCart) {
-//        this.productsInCart = productsInCart;
-//    }
-//
-//    public ShoppingCart(int cartTotalCost, List<Product> productsInCart) {
-//        this.cartTotalCost = cartTotalCost;
-//        this.productsInCart = productsInCart;
-//    }
 
     //Methods
     //Print the  names of all the product in a current Shopping Cart
@@ -36,8 +27,6 @@ public class ShoppingCart {
 
     //Print the total cost of current Shopping Cart
     public void printTotalCostCart(ShoppingCart currentCart, Customer customer) {
-        //when Cart is empty its current total cost is 0
-//        double currentCost=0;
         //calculates the total cost of the cart: this product(with it's discount or not) + the total sum until now
         for (Product product : this.productsInCart) {
             // each rank has different discount
@@ -52,10 +41,9 @@ public class ShoppingCart {
         //update Customer's cost of purchases
         customer.setCostOfPurchases(this.getCartTotalCost());
 
+
     }
 
-
-    //todo:does this func should be ShoppingCart or List<Product>?
     //from given store stock, user puts the product that he chose (by its product number) in the cart
 
     public ShoppingCart putProductInCart(Store store, Product chosenProduct) {

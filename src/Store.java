@@ -1,5 +1,5 @@
+import java.util.Date;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Store {
@@ -26,8 +26,7 @@ public class Store {
     public void createUser() {
         Scanner scanner = new Scanner(System.in);
         int getType;
-        //todo: ask Asaf how to change it to polymorphism
-        String userType = null;
+        String userType;
         System.out.println("Which account would you like to create?");
         System.out.println("1- Worker account");
         System.out.println("2- Customer account?");
@@ -35,14 +34,11 @@ public class Store {
         getType = scanner.nextInt();
         if (getType == 2) {
             userType = "Customer";
-//            //add to Customers list
-//            Customer newCustomer=new Customer();
-//            customers.add(newCustomer);
         } else {
             userType = "Worker";
         }
-        String firstName = null;
-        String lastname = null;
+        String firstName;
+        String lastname;
         Rank rank = null;
         //get isVip?  answer from the user
         int vipAnswer;
@@ -55,18 +51,18 @@ public class Store {
             System.out.println("Enter your first name: ");
             firstName = scanner.next();
             //keep asking for first name as long as it contains numbers
-        } while (!isNotContainNumbers(firstName));
+        } while (isContainNumbers(firstName));
         do {
             System.out.println("Enter you last name: ");
             lastname = scanner.next();
-        } while (!isNotContainNumbers(lastname));
-        String username = null;
+        } while (isContainNumbers(lastname));
+        String username;
         do {
             System.out.println("Enter username: ");
             username = scanner.next();
         } while (this.isUserNameExists(username));
         System.out.println("Your username is valid!\n");
-        String password = null;
+        String password;
         do {
             System.out.println("Enter your password: ");
             password = scanner.next();
@@ -75,7 +71,6 @@ public class Store {
             }
         } while (password.length() < 6);
         System.out.println("Your password is valid!\n");
-        //todo:Check why isVIP not represented in the newUser object
         //if the user is a customer
         if (getType == 2) {
             System.out.println("Are you a VIP member?");
@@ -106,16 +101,15 @@ public class Store {
             switch (rank) {
                 case REGULAR:
                     System.out.println("regular worker");
-                    //todo:update currentUser object
                     break;
+
                 case MANAGER:
                     System.out.println("manager");
 
-                    //todo:update currentUser object
                     break;
                 case IN_MANAGEMENT_TEAM:
                     System.out.println("in management team");
-                    //todo:update currentUser object
+
                     break;
             }
         }
@@ -124,8 +118,6 @@ public class Store {
         //adding newUser to the LinkedList
         this.users.add(newUser);
         System.out.println("New User was added!\n");
-        //test if the values are inserted to the newUser object
-        System.out.println(newUser.toString());
     }
 
 
@@ -146,23 +138,19 @@ public class Store {
 
 
     //checks if the firstname and lastname strings dose not contains numbers (returns "true" if they are valid names)
-    //todo: check if i need to change to isContainNumbers
-    private boolean isNotContainNumbers(String name) {
-        boolean notContainNum = true;
+    private boolean isContainNumbers(String name) {
         if (name.matches(".*\\d.*")) {
             //there is a number in the name
-            notContainNum = false;
             System.out.println("You can't enter numbers");
-            return notContainNum;
+            return true;
         }
-        return notContainNum;
+        return false;
     }
 
 
-    //todo: check if i will need to return User or void, and if this func should not be in User class
     //log in the system if the account is exists
-    public User login() {
-        User found = new User();
+    public void login() {
+        User found;
         Scanner scanner = new Scanner(System.in);
         int getType;
         int flag = 0;
@@ -219,8 +207,6 @@ public class Store {
         if (flag == 0) {
             System.out.println("Wrong credentials!\n");
         }
-//        customerLoggedIn(found);
-        return found;
     }
 
 
@@ -236,7 +222,6 @@ public class Store {
         if (getProductNum == -1) {
             return null;
         }
-        //todo:check if this works
         //get the amount of product that a user wants, and make sure that the amount is not negative or zero
         do {
             System.out.println("How many items from this product do you want to put in your shopping cart?");
@@ -253,8 +238,8 @@ public class Store {
     }
 
     //returns if a user's chosen product is in stock (choosing by productNumber and amount)
-    public boolean isProductInStock(Store productsInStore, Product userProduct) {
-        //by default i didn't found the product.
+    public boolean isProductInStock(Product userProduct) {
+        //by default, I didn't found the product.
         boolean foundProduct = false;
         int flag = 0;
         Scanner scanner = new Scanner(System.in);
@@ -304,23 +289,6 @@ public class Store {
         if (userDecision == -1) {
             currentCart.printTotalCostCart(currentCart, customer);
             System.out.println("Thank you for shopping in our store. Have a nice day!\n");
-            System.out.println(customer.getClass());
-            //update totalCost if it is a customer
-            if (customer.getClass().equals("java.lang.Customer")) {
-//                Customer customer = new Customer();
-                //todo:check if i need it
-//                //update  that this user is a customer
-//                customer.setUsername(user.getUsername());
-//                customer.setLastName(user.getLastName());
-//                customer.setVIP(user.isVIP());
-                customer.setCostOfPurchases(currentCart.getCartTotalCost());
-                //customer has purchased?
-                if (customer.getCostOfPurchases() > 0) {
-                    customer.setHasPurchased(true);
-                }
-                //adding to the customers list
-                customers.add(customer);
-            }
             //clear the shopping cart
             currentCart.productsInCart.clear();
             finishPurchase = true;
@@ -330,15 +298,13 @@ public class Store {
 
     public void makePurchase(Customer customer) {
         ShoppingCart shoppingCart = new ShoppingCart();
-        Scanner scanner = new Scanner(System.in);
-        int getProductNum, getAmount;
         do {
 
             //print to the user the list of the products that are in stock in the store
             customer.printProductsInStore(this);
             // if the product is in stock, the user can proceed purchasing
             Product userProduct = getUserProductChoice();
-            if (isProductInStock(this, userProduct)) {
+            if (isProductInStock(userProduct)) {
                 //The user put in his Cart the products that he choose
                 shoppingCart = shoppingCart.putProductInCart(this, userProduct);
                 //print all  the products in the user's Cart
@@ -346,9 +312,14 @@ public class Store {
                 //Print the total cost of current user's Shopping Cart
                 shoppingCart.printTotalCostCart(shoppingCart, customer);
                 //todo: not sure if it needs to be here or in the end of printTotalCost
-                //update that the customer has finally made a purchase
+                //update that the customer has finally made a purchase with the date of purchase
                 customer.setHasPurchased(true);
+                customer.setDate(new Date());
+                System.out.println("The Date of purchase of " + customer.getFirstName() + " " + customer.getLastName() +
+                        " in the store is: " + customer.getDate());
 
+            } else {
+                System.out.println("Error! we cant find this product number. Please try enter it again");
             }
 
         } while (!finishPurchase(shoppingCart, customer));
@@ -358,10 +329,6 @@ public class Store {
     //todo: not sure of ShoppingCart type
     //When a Customer type of user is log in
     public void customerLoggedIn(Customer customer) {
-        ShoppingCart shoppingCart = new ShoppingCart();
-        Scanner scanner = new Scanner(System.in);
-        int getProductNum, getAmount;
-
         // after successful login, find if it is an VIP customer account
         if (customer.isVIP()) {
             System.out.println("Hello " + customer.getFirstName() + " " + customer.getLastName() + " VIP!");
@@ -371,16 +338,6 @@ public class Store {
             System.out.println("Hello " + customer.getFirstName() + " " + customer.getLastName() + "!");
         }
         makePurchase(customer);
-
-
-//
-//        } while (!finishPurchase(shoppingCart, customer));
-        //todo: decide what to do when !isProductInStock(this)
-//        //when the user chose a product that is not in stock
-//        if (!isProductInStock(this)) {
-//            System.out.println("Error! we cant find this product number. Please try enter it again");
-//        }
-
     }
 
     public void workerLoggedIn(Worker worker) {
@@ -393,7 +350,7 @@ public class Store {
 
 
         do {
-            System.out.println("1-print the whole Customers list");
+            System.out.println("\n1-print the whole Customers list");
             System.out.println("2-print only the VIP's Customers");
             System.out.println("3-print the Customers who made one purchase at least");
             System.out.println("4-Print the Customer whose purchase amount is the highest ");
@@ -403,8 +360,6 @@ public class Store {
             System.out.println("8-Exit");
 
             workerChoice = scanner.nextInt();
-
-
             switch (workerChoice) {
                 case 1:
                     worker.printAllCustomers(this);
@@ -430,7 +385,6 @@ public class Store {
                 case 7:
                     makePurchase(worker);
                     break;
-
             }
         } while (workerChoice != 8);
     }

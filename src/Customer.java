@@ -1,24 +1,31 @@
+import java.util.Date;
 import java.util.LinkedList;
 
-public class Customer extends User{
+public class Customer extends User {
 
     //todo: not sure about these properties
     private boolean hasPurchased;
     private double costOfPurchases;
     private double discount;
+    private Date Date;
 
-    private int Date;
+    //Constructor
+    public Customer() {
+    }
 
-public Customer(){};
 
 
+    //Getters and Setters
+    public double getCostOfPurchases() {
+        return costOfPurchases;
+    }
 
-//Getters and Setters
-public double getCostOfPurchases() {
-    return costOfPurchases;
-}
     public double getDiscount() {
         return discount;
+    }
+
+    public Date getDate() {
+        return Date;
     }
 
     public void setHasPurchased(boolean hasPurchased) {
@@ -33,13 +40,12 @@ public double getCostOfPurchases() {
         return hasPurchased;
     }
 
-
-
     public void setDiscount(double discount) {
         this.discount = discount;
     }
 
-//Methods
-
+    public void setDate(Date date) {
+        Date = date;
+    }
 
 }

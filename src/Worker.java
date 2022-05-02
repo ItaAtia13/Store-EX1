@@ -1,11 +1,9 @@
-public class Worker extends Customer{
+public class Worker extends Customer {
 
 
-public Worker(){
+    public Worker() {
 
-}
-
-
+    }
 
 
 }

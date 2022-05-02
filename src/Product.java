@@ -3,28 +3,17 @@ public class Product {
     private int productNum;
     private double price;
     private int amount;
-
     private int discountPrecent;
-    //todo:not sure about this field
     private boolean isInStock;
 
     //Constructors
-    public Product(){
-    };
-
-    //todo: check if i need to add amount
-    public Product(int productNum) {
-        this.productNum=productNum;
+    public Product() {
     }
 
-//todo: dont know if to make constructor
-//    public Product(String productName, int productNum, int price, boolean isInStock, int amount) {
-//        this.productName = productName;
-//        this.productNum = productNum;
-//        this.price = price;
-//        this.isInStock = isInStock;
-//        this.amount = amount;
-//    }
+
+    public Product(int productNum) {
+        this.productNum = productNum;
+    }
 
     //Getters
     public String getProductName() {
