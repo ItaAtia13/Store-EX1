@@ -1,5 +1,6 @@
 public enum Rank {
-    REGULAR
+    CUSTOMER
+    ,REGULAR
     ,MANAGER
     , IN_MANAGEMENT_TEAM
 }

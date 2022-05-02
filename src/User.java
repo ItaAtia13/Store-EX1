@@ -142,37 +142,49 @@ public class User  {
     }
 
     public void printAllCustomers(Store store){
+        //flag is down when didnt found a Customer in the list
+        int flag=0;
+        System.out.println("These are the customers in our store:\n");
         for (User user: store.users) {
 //            if (store.users.isEmpty())
             if (user.getUserType().equals("Customer")){
-                System.out.println("These are the customers in our store:\n"+user.getFirstName()+" "+user.getLastName());
-            }else {
-                System.out.println("The Customers list is empty");
+                flag=1;
+                System.out.println(user.getFirstName()+" "+user.getLastName()+"\n");
             }
         }
+        if (flag==0){
+            System.out.println("The Customers list is empty");
+        }
+        //reset flag
+        flag=0;
     }
 
     //print the VIP'S Customers
     public void printVipCustomers(Store store){
+        //flag is down when didnt found a Customer in the list
+        int flag=0;
+        System.out.println("These are the VIP customers in our store:\n");
         for (User user: store.users) {
             if (user.getUserType().equals("Customer")&&user.isVIP){
-                System.out.println("These are the VIP customers in our store:\n"+user.getFirstName()+" "+user.getLastName());
-            }
-            else {
-                System.out.println("The Customers VIP'S list is empty");
+                flag=1;
+                System.out.println(user.getFirstName()+" "+user.getLastName()+"\n");
             }
         }
+        if (flag==0){
+            System.out.println("The Customers VIP'S list is empty");
+        }
+        //reset flag
+        flag=0;
     }
 
     // print all the customers that has  made at least single purchase
     public void printMadePurchase(Store store){
+        System.out.println("This is the list of all the Customers that has made at least one single purchase:\n");
         for (Customer customer: store.customers) {
             if (customer.isMadePurchase()){
-                System.out.println("This is the list of all the Customers that has made at least one single purchase:\n"+customer.getFirstName()+" "+customer.getLastName()+"\n");
+                System.out.println(customer.getFirstName()+" "+customer.getLastName()+"\n");
             }
-
         }
-
     }
 
     //Top customer
@@ -203,6 +215,8 @@ public class User  {
     }
 
     public void changeProductStatus(Store store){
+        //flag when a product num isn't valid
+        int flag=0;
         Scanner scanner=new Scanner(System.in);
         printProductsInStore(store);
         System.out.println("Enter a product number for changing its Status in the stock: ");
@@ -212,46 +226,57 @@ public class User  {
         for (Product product:store.productsInStore) {
             //when the user chose to make a product out of stock
             if (stockChoice==-1 && product.getProductNum()==productNumberChoice){
+                flag=1;
                 product.setAmount(0);
                 product.setInStock(false);
                 System.out.println(product.getProductName()+" is now out of stock!");
                 //delete this out of stock product from the list
                 store.productsInStore.remove(product);
             } else if (stockChoice==1 && product.getProductNum()==productNumberChoice) {
+                flag=1;
                 System.out.println("Please set "+product.getProductName()+" amount: ");
                 int newAmount=scanner.nextInt();
                 product.setAmount(newAmount);
                 product.setInStock(true);
+                System.out.println("We have update the new amount of this product in stock");
 
             }
 
+        }
+        //when the chosen product number is not valid
+        if (flag!=1){
+            System.out.println("Error! you have entered wrong product number");
         }
 
     }
 
     //todo: change it?
     //by each worker's rank' get the discount and reduce in the end of the purchase
-    public double rankDiscount(Worker worker){
-        switch (worker.getRank()){
+    public void rankDiscount(Customer customer){
+        switch (customer.getRank()){
+            // REGULAR CUSTOMERS DOSENT HAVE DISCOUNT
+            case CUSTOMER:
+                customer.setDiscount(0);
+                break;
+
             case  REGULAR:
                 //get the discount value
-                worker.setDiscount(0.1);
+                customer.setDiscount(0.1);
                 //todo this line should be out of this func
                 //reduce it from the total sum
 //                worker.setCostOfPurchases((worker.getCostOfPurchases()- worker.getDiscount()));
                 break;
             case MANAGER:
-                worker.setDiscount(0.2);
+                customer.setDiscount(0.2);
 //                worker.setCostOfPurchases((worker.getCostOfPurchases()- worker.getDiscount()));
 
                 break;
             case IN_MANAGEMENT_TEAM:
-                worker.setDiscount(0.3);
+                customer.setDiscount(0.3);
 //                worker.setCostOfPurchases((worker.getCostOfPurchases()- worker.getDiscount()));
 
                 break;
         }
-        return worker.getDiscount();
 
     }
 

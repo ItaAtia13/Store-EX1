@@ -1,15 +1,16 @@
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 
-public class ShoppingCart{
-    private int cartTotalCost;
+public class ShoppingCart {
+    private double currentCost;
+    private int currentAmountInCart;
+    private double cartTotalCost;
     //todo:check if protected problematic
-    protected List <Product> productsInCart;
+    protected List<Product> productsInCart;
 
     //Constructors
     public ShoppingCart() {
-        this.productsInCart=new LinkedList<>();
+        this.productsInCart = new LinkedList<>();
     }
 
 //    public ShoppingCart(List<Product> productsInCart) {
@@ -23,78 +24,73 @@ public class ShoppingCart{
 
     //Methods
     //Print the  names of all the product in a current Shopping Cart
-    public void printCartProducts(ShoppingCart currentCart){
-        int i=0;
+    public void printCartProducts(ShoppingCart currentCart) {
+        int i = 0;
         System.out.println("Your Shopping Cart contains these products:\n");
-        for (Product product:currentCart.productsInCart) {
+        for (Product product : currentCart.productsInCart) {
             i++;
-            System.out.println(i+". "+product.getProductName()+" amount:"+product.getAmount()+"\n");
+            System.out.println(i + ". " + product.getProductName() + " amount:" + product.getAmount() + "\n");
 
         }
     }
 
     //Print the total cost of current Shopping Cart
-    public void printTotalCostCart(ShoppingCart currentCart){
+    public void printTotalCostCart(ShoppingCart currentCart, Customer customer) {
         //when Cart is empty its current total cost is 0
-        int currentCost=0;
-        //calculates the total cost of the cart: this product + the total sum until now
-        for (Product product:this.productsInCart) {
-            this.setCartTotalCost((product.getPrice()*product.getAmount()+currentCost));
-            currentCost=this.getCartTotalCost();
+//        double currentCost=0;
+        //calculates the total cost of the cart: this product(with it's discount or not) + the total sum until now
+        for (Product product : this.productsInCart) {
+            // each rank has different discount
+            customer.rankDiscount(customer);
+            this.setCurrentCost(this.getCartTotalCost());
+            this.setCurrentAmountInCart(product.getAmount());
+            // ((price -(price* the discount))*(amount of the product in Cart)
+            this.setCartTotalCost(((product.getPrice() - (product.getPrice() * customer.getDiscount())) *
+                    (this.getCurrentAmountInCart())));
         }
-//        if (user.getUserType().equals("Worker")){
-//            //for example total cost before discount is 100 so: 100 - (0.1*100)= the total cost after discount
-//            this.setCartTotalCost(this.getCartTotalCost()-(user.rankDiscount(user)*this.getCartTotalCost()));
-//            System.out.println("After your discount,the total cost of your Shopping Cart is: "+this.getCartTotalCost());
-//
-//        }else {
-            System.out.println("The total cost of your Shopping Cart is: " + this.getCartTotalCost());
+        System.out.println("The total cost of your Shopping Cart is: " + this.getCartTotalCost());
+        //update Customer's cost of purchases
+        customer.setCostOfPurchases(this.getCartTotalCost());
 
     }
-
 
 
     //todo:does this func should be ShoppingCart or List<Product>?
     //from given store stock, user puts the product that he chose (by its product number) in the cart
 
-    public ShoppingCart putProductInCart(Store store,Product chosenProduct) {
+    public ShoppingCart putProductInCart(Store store, Product chosenProduct) {
         //when the product is already in Cart, we need fewer checks
-        boolean isAlreadyInCart=false;
+        boolean isAlreadyInCart = false;
         // running on the products in Cart
-        for (Product product:this.productsInCart) {
+        for (Product product : this.productsInCart) {
             //if the chosen product is already in the Cart we just need to set its new amount in the Cart and in stock
-         if (product.getProductNum()==chosenProduct.getProductNum()){
-             product.setAmount(product.getAmount()+chosenProduct.getAmount());
-          isAlreadyInCart=true;
-          break;
-         }
+            if (product.getProductNum() == chosenProduct.getProductNum()) {
+                product.setAmount(product.getAmount() + chosenProduct.getAmount());
+                isAlreadyInCart = true;
+                break;
+            }
         }
         // running on store's list of products
-        for (Product product: store.productsInStore) {
+        for (Product product : store.productsInStore) {
             //when a chosen productNumber by a customer, is founded in the stock list
-            if (product.getProductNum() == chosenProduct.getProductNum()){
-            // reduce the amount of this product from the store when the user adding it to the Cart
-            product.setAmount(product.getAmount()-chosenProduct.getAmount());
-            //do not need the other operations when its already in Cart
-            if (isAlreadyInCart){
-                return this;
-            }
-//            // reset the flag
-//            isAlreadyInCart=false;
-
-            //set the chosen product's name and price in the Cart
-            chosenProduct.setProductName(product.getProductName());
-            chosenProduct.setPrice(product.getPrice());
-            //add the chosen product to the Cart
-            this.productsInCart.add(chosenProduct);
-            //update the total cost of the cart by the chosen product price
-            this.setCartTotalCost(chosenProduct.getPrice());
+            if (product.getProductNum() == chosenProduct.getProductNum()) {
+                // reduce the amount of this product from the store when the user adding it to the Cart
+                product.setAmount(product.getAmount() - chosenProduct.getAmount());
+                //do not need the other operations when its already in Cart
+                if (isAlreadyInCart) {
+                    return this;
+                }
+                //set the chosen product's name and price in the Cart
+                chosenProduct.setProductName(product.getProductName());
+                chosenProduct.setPrice(product.getPrice());
+                //add the chosen product to the Cart
+                this.productsInCart.add(chosenProduct);
                 //remove a product from stock when the amount of product in the store is 0 after adding it to the user's Cart
-                if (product.getAmount()==0) {
+                if (product.getAmount() == 0) {
                     store.productsInStore.remove(product);
                 }
 
-        }
+            }
         }
         return this;
     }
@@ -102,12 +98,30 @@ public class ShoppingCart{
 
     //////////////////////////////////////////////////////////////
     //Getters and Setters
-    public int getCartTotalCost() {
+
+
+    public double getCurrentCost() {
+        return currentCost;
+    }
+
+    public int getCurrentAmountInCart() {
+        return currentAmountInCart;
+    }
+
+    public double getCartTotalCost() {
         return cartTotalCost;
     }
 
-    public void setCartTotalCost(int cartTotalCost) {
+    public void setCurrentCost(double currentCost) {
+        this.currentCost = currentCost;
+    }
+
+    public void setCartTotalCost(double cartTotalCost) {
         this.cartTotalCost = cartTotalCost;
+    }
+
+    public void setCurrentAmountInCart(int currentAmountInCart) {
+        this.currentAmountInCart = currentAmountInCart;
     }
 
 

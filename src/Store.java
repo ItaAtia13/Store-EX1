@@ -4,12 +4,12 @@ import java.util.Scanner;
 
 public class Store {
     //    private Product product;
-    protected List<User> users;
+    protected LinkedList<User> users;
     //todo:check if protected problematic
-    protected List<Product> productsInStore;
+    protected LinkedList<Product> productsInStore;
 
     protected LinkedList<Customer> customers;
-    protected  List<Worker>workers;
+    protected LinkedList<Worker> workers;
 
 
     public Store() {
@@ -17,6 +17,7 @@ public class Store {
         this.users = new LinkedList<>();
         this.productsInStore = new LinkedList<>();
         this.customers = new LinkedList<>();
+        this.workers = new LinkedList<>();
     }
 
     //Methods
@@ -92,10 +93,14 @@ public class Store {
             System.out.println("2-No");
             alsoWorker = scanner.nextInt();
         }
+        //When the user is a customer without any rank
+        if (alsoWorker == 2) {
+            rank = Rank.CUSTOMER;
+        }
         //if the user is a worker or a costumer and also worker
         if (getType == 1 || alsoWorker == 1) {
             System.out.println("What is your Rank?");
-            System.out.println("0-Regular \n1-Manager\n2-In management team");
+            System.out.println("1-Regular \n2-Manager\n3-In management team");
             //get Enum options from  the user
             rank = Rank.values()[scanner.nextInt()];
             switch (rank) {
@@ -160,6 +165,7 @@ public class Store {
         User found = new User();
         Scanner scanner = new Scanner(System.in);
         int getType;
+        int flag = 0;
         System.out.println("Which account would you like to Log-In?");
         System.out.println("1-Worker account");
         System.out.println("2-Customer account");
@@ -182,25 +188,36 @@ public class Store {
 
         // check in our UsersList if the username and password are exists
         for (User currentUser : this.users) {
-            //check if the userType is the same
-            if ((currentUser.getUserType().equals(userType))) {
-                //check if the username and password are the same
-                if (currentUser.getUsername().equals(username) && currentUser.getPassword().equals(password)) {
-                    found = currentUser;
-                    if (found.getUserType().equals("Customer")) {
-                        customerLoggedIn(found);
-                    } else if (found.getUserType().equals("Worker")) {
-                        workerLoggedIn(found);
-                    }
-                    break;
-                } else {
-                    System.out.println("Wrong credentials!\n");
+            //check if the username and password are the same
+            if (currentUser.getUsername().equals(username) && currentUser.getPassword().equals(password)) {
+                flag = 1;
+                //when the userType is not the as our UsersType List, but thw username and password are valid print an Error message
+                if (!currentUser.getUserType().equals(userType)) {
+                    System.out.println("Error! cannot find your account in our " + userType + "s accounts list\n");
                     break;
                 }
+                found = currentUser;
+                if (found.getUserType().equals("Customer")) {
+                    Customer newCustomer = new Customer();
+                    newCustomer.setFirstName(currentUser.getFirstName());
+                    newCustomer.setLastName(currentUser.getLastName());
+                    //todo:check if need eventually rank in customer
+                    newCustomer.setRank(currentUser.getRank());
+                    customers.add(newCustomer);
+                    customerLoggedIn(newCustomer);
+                } else if (found.getUserType().equals("Worker")) {
+                    Worker newWorker = new Worker();
+                    newWorker.setFirstName(currentUser.getFirstName());
+                    newWorker.setLastName(currentUser.getLastName());
+                    newWorker.setRank(currentUser.getRank());
+                    workers.add(newWorker);
+                    workerLoggedIn(newWorker);
+                }
             }
-            //todo:bug here when i enter first worker account then this line down here show
-            //when the userType is not the as our UsersType List print an Error message
-            System.out.println("Error! cannot find your account in our " + userType + " accounts list\n");
+        }
+        //when username or password are invalid
+        if (flag == 0) {
+            System.out.println("Wrong credentials!\n");
         }
 //        customerLoggedIn(found);
         return found;
@@ -217,7 +234,6 @@ public class Store {
         Product userProduct = new Product();
         //user choice is to quit
         if (getProductNum == -1) {
-            System.out.println("You chose to finish your shopping. Have a nice day!");
             return null;
         }
         //todo:check if this works
@@ -240,6 +256,7 @@ public class Store {
     public boolean isProductInStock(Store productsInStore, Product userProduct) {
         //by default i didn't found the product.
         boolean foundProduct = false;
+        int flag = 0;
         Scanner scanner = new Scanner(System.in);
         //running on Store's product list and checks if the product number from the user input exists in the stock list
         for (Product productInStock : this.productsInStore) {
@@ -265,11 +282,11 @@ public class Store {
                 }
                 foundProduct = true;
                 break;
-
             }
+            flag = 1;
         }
         //when we scan the whole products in the store and did not find a match productNumber
-        if (!foundProduct) {
+        if (!foundProduct && flag == 1) {
             System.out.println("This Product Number does not exist in our store.");
         }
         return foundProduct;
@@ -277,22 +294,25 @@ public class Store {
 
 
     //finishing the purchase.
-    public boolean finishPurchase(ShoppingCart currentCart, User user) {
+    public boolean finishPurchase(ShoppingCart currentCart, Customer customer) {
         boolean finishPurchase = false;
         Scanner scanner = new Scanner(System.in);
-        System.out.println("For finish shopping Press -1\nTo Continue Shopping Press 1");
+        System.out.println(
+                "Are you sure that you want to finish your shopping?\nYes press -1\nTo Continue Shopping Press 1");
         int userDecision = scanner.nextInt();
         //print the total cost and clear the Cart
         if (userDecision == -1) {
-            currentCart.printTotalCostCart(currentCart);
+            currentCart.printTotalCostCart(currentCart, customer);
             System.out.println("Thank you for shopping in our store. Have a nice day!\n");
+            System.out.println(customer.getClass());
             //update totalCost if it is a customer
-            if (user.getUserType().equals("Customer")) {
-                Customer customer = new Customer();
-                //update  that this user is a customer
-                customer.setUsername(user.getUsername());
-                customer.setLastName(user.getLastName());
-                customer.setVIP(user.isVIP());
+            if (customer.getClass().equals("java.lang.Customer")) {
+//                Customer customer = new Customer();
+                //todo:check if i need it
+//                //update  that this user is a customer
+//                customer.setUsername(user.getUsername());
+//                customer.setLastName(user.getLastName());
+//                customer.setVIP(user.isVIP());
                 customer.setCostOfPurchases(currentCart.getCartTotalCost());
                 //customer has purchased?
                 if (customer.getCostOfPurchases() > 0) {
@@ -308,14 +328,14 @@ public class Store {
         return finishPurchase;
     }
 
-    public void makePurchase(User user){
+    public void makePurchase(Customer customer) {
         ShoppingCart shoppingCart = new ShoppingCart();
         Scanner scanner = new Scanner(System.in);
         int getProductNum, getAmount;
         do {
 
             //print to the user the list of the products that are in stock in the store
-            user.printProductsInStore(this);
+            customer.printProductsInStore(this);
             // if the product is in stock, the user can proceed purchasing
             Product userProduct = getUserProductChoice();
             if (isProductInStock(this, userProduct)) {
@@ -323,54 +343,38 @@ public class Store {
                 shoppingCart = shoppingCart.putProductInCart(this, userProduct);
                 //print all  the products in the user's Cart
                 shoppingCart.printCartProducts(shoppingCart);
-                if (user.getUserType().equals("Worker")){
-                }
                 //Print the total cost of current user's Shopping Cart
-                shoppingCart.printTotalCostCart(shoppingCart);
+                shoppingCart.printTotalCostCart(shoppingCart, customer);
+                //todo: not sure if it needs to be here or in the end of printTotalCost
+                //update that the customer has finally made a purchase
+                customer.setHasPurchased(true);
+
             }
-//            else {
-//                //when the product isn't in stock finish the purchase
-//                finishPurchase(shoppingCart);
-//            }
-        } while (!finishPurchase(shoppingCart, user));
+
+        } while (!finishPurchase(shoppingCart, customer));
     }
 
 
     //todo: not sure of ShoppingCart type
     //When a Customer type of user is log in
-    public void customerLoggedIn(User user) {
+    public void customerLoggedIn(Customer customer) {
         ShoppingCart shoppingCart = new ShoppingCart();
         Scanner scanner = new Scanner(System.in);
         int getProductNum, getAmount;
 
-        // after successful login, find if its an VIP customer account
-        if (user.getUserType().equals("Customer") && user.isVIP()) {
-            System.out.println("Hello " + user.getFirstName() + " " + user.getLastName() + " VIP!");
+        // after successful login, find if it is an VIP customer account
+        if (customer.isVIP()) {
+            System.out.println("Hello " + customer.getFirstName() + " " + customer.getLastName() + " VIP!");
         }
         //customer account but not VIP
-        else if (user.getUserType().equals("Customer")) {
-            System.out.println("Hello " + user.getFirstName() + " " + user.getLastName() + "!");
+        else {
+            System.out.println("Hello " + customer.getFirstName() + " " + customer.getLastName() + "!");
         }
+        makePurchase(customer);
 
-        do {
 
-            //print to the user the list of the products that are in stock in the store
-            user.printProductsInStore(this);
-            // if the product is in stock, the user can proceed purchasing
-            Product userProduct = getUserProductChoice();
-            if (isProductInStock(this, userProduct)) {
-                //The user put in his Cart the products that he choose
-                shoppingCart = shoppingCart.putProductInCart(this, userProduct);
-                //print all  the products in the user's Cart
-                shoppingCart.printCartProducts(shoppingCart);
-                //Print the total cost of current user's Shopping Cart
-                shoppingCart.printTotalCostCart(shoppingCart);
-            }
-//            else {
-//                //when the product isn't in stock finish the purchase
-//                finishPurchase(shoppingCart);
-//            }
-        } while (!finishPurchase(shoppingCart, user));
+//
+//        } while (!finishPurchase(shoppingCart, customer));
         //todo: decide what to do when !isProductInStock(this)
 //        //when the user chose a product that is not in stock
 //        if (!isProductInStock(this)) {
@@ -379,19 +383,14 @@ public class Store {
 
     }
 
-    public void workerLoggedIn(User user) {
+    public void workerLoggedIn(Worker worker) {
         Scanner scanner = new Scanner(System.in);
         int workerChoice;
 
         // after successful login, print the worker stats
-        if (user.getUserType().equals("Worker")) {
-            Worker newWorker=new Worker();
-            newWorker.setFirstName(user.getFirstName());
-            newWorker.setLastName(user.getLastName());
-            newWorker.setRank(user.getRank());
-            workers.add(newWorker);
-            System.out.println("Hello " + newWorker.getFirstName() + " " + newWorker.getLastName() + " " + newWorker.getRank() + " !");
-        }
+        System.out.println(
+                "Hello " + worker.getFirstName() + " " + worker.getLastName() + " " + worker.getRank() + " !");
+
 
         do {
             System.out.println("1-print the whole Customers list");
@@ -408,23 +407,29 @@ public class Store {
 
             switch (workerChoice) {
                 case 1:
-                    user.printAllCustomers(this);
+                    worker.printAllCustomers(this);
                     break;
                 case 2:
-                    user.printVipCustomers(this);
+                    worker.printVipCustomers(this);
                     break;
+                //todo:print when its empty
                 case 3:
-                    user.printMadePurchase(this);
+                    worker.printMadePurchase(this);
                     break;
                 case 4:
-                    user.printTopCustomer(this);
+                    worker.printTopCustomer(this);
+                    break;
 
                 case 5:
-                    user.enterProductsToStock(this);
+                    worker.enterProductsToStock(this);
+                    break;
                 case 6:
-                    user.changeProductStatus(this);
-                case 7:user.makePurchase();
-
+                    //todo: print a message when a product number is not valid
+                    worker.changeProductStatus(this);
+                    break;
+                case 7:
+                    makePurchase(worker);
+                    break;
 
             }
         } while (workerChoice != 8);

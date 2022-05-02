@@ -1,7 +1,7 @@
 public class Product {
     private String productName;
     private int productNum;
-    private int price;
+    private double price;
     private int amount;
 
     private int discountPrecent;
@@ -35,7 +35,7 @@ public class Product {
         return productNum;
     }
 
-    public int getPrice() {
+    public double getPrice() {
         return price;
     }
 
@@ -60,7 +60,7 @@ public class Product {
         this.productNum = productNum;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
